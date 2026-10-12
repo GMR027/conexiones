@@ -1,0 +1,282 @@
+{
+  "name": "conexiones",
+  "displayName": "Conexiones",
+  "description": "Conecta webs de ayuda, librerías, registros de paquetes, iconos, fuentes, imágenes y servidores MCP; guarda lo leído en tu equipo y responde con IA local (Ollama) o API.",
+  "version": "0.5.13",
+  "publisher": "edgar",
+  "author": {
+    "name": "GMR027",
+    "url": "https://github.com/GMR027"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "documentation",
+    "packages",
+    "icons",
+    "mcp",
+    "ai",
+    "ollama",
+    "vscodium"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "conexiones.openPanel",
+        "title": "Conexiones: Abrir panel"
+      },
+      {
+        "command": "conexiones.ask",
+        "title": "Conexiones: Preguntar al asistente",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "conexiones.addConnection",
+        "title": "Conexiones: Añadir una conexión",
+        "icon": "$(add)"
+      },
+      {
+        "command": "conexiones.syncAll",
+        "title": "Conexiones: Actualizar todas las conexiones"
+      },
+      {
+        "command": "conexiones.refreshPanel",
+        "title": "Actualizar",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "conexiones.configureApi",
+        "title": "Conexiones: Configurar proveedor API"
+      },
+      {
+        "command": "conexiones.setApiKey",
+        "title": "Conexiones: Guardar API key"
+      },
+      {
+        "command": "conexiones.clearApiKey",
+        "title": "Conexiones: Borrar API key"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "conexiones",
+          "title": "Conexiones",
+          "icon": "media/conexiones.svg"
+        }
+      ]
+    },
+    "views": {
+      "conexiones": [
+        {
+          "type": "webview",
+          "id": "conexiones.panel",
+          "name": "Conexiones",
+          "icon": "media/conexiones.svg"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "conexiones.addConnection",
+          "when": "view == conexiones.panel",
+          "group": "navigation@1"
+        },
+        {
+          "command": "conexiones.refreshPanel",
+          "when": "view == conexiones.panel",
+          "group": "navigation@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Conexiones",
+      "properties": {
+        "conexiones.mode": {
+          "type": "string",
+          "enum": [
+            "local",
+            "api"
+          ],
+          "enumDescriptions": [
+            "Un modelo en tu equipo con Ollama",
+            "Un proveedor en la nube (Claude, Codestral, compatible con OpenAI)"
+          ],
+          "default": "local",
+          "description": "De dónde sale la IA de las herramientas.",
+          "scope": "application"
+        },
+        "conexiones.local.url": {
+          "type": "string",
+          "default": "",
+          "description": "URL de Ollama. Vacío = la de GhostCode si está instalada, o http://localhost:11434.",
+          "scope": "application"
+        },
+        "conexiones.local.chatModel": {
+          "type": "string",
+          "default": "",
+          "description": "Modelo de chat (que siga instrucciones). Vacío = automático: primero el que ya esté cargado en Ollama (p. ej. por GhostCode) para no cargar dos."
+        },
+        "conexiones.language": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "es",
+            "en",
+            "pt",
+            "fr",
+            "de",
+            "it"
+          ],
+          "default": "auto",
+          "description": "Idioma de las respuestas de la IA. «auto» usa el de VS Code."
+        },
+        "conexiones.api.provider": {
+          "type": "string",
+          "enum": [
+            "anthropic",
+            "codestral",
+            "openai-compatible"
+          ],
+          "default": "anthropic",
+          "description": "Proveedor del modo API.",
+          "scope": "application"
+        },
+        "conexiones.api.model": {
+          "type": "string",
+          "default": "",
+          "description": "Modelo del proveedor. Vacío = el predeterminado.",
+          "scope": "application"
+        },
+        "conexiones.api.baseUrl": {
+          "type": "string",
+          "default": "",
+          "description": "URL base del proveedor (obligatoria en «openai-compatible»).",
+          "scope": "application"
+        },
+        "conexiones.security.allowHttp": {
+          "type": "boolean",
+          "default": false,
+          "scope": "application",
+          "description": "Permitir direcciones http:// (sin cifrar). Recomendado: desactivado."
+        },
+        "conexiones.security.allowPrivateNetwork": {
+          "type": "boolean",
+          "default": false,
+          "scope": "application",
+          "description": "Permitir conectar con tu propio equipo y tu red local (localhost, 192.168.x.x…). Recomendado: desactivado: protege de enlaces que intenten llegar a servicios internos."
+        },
+        "conexiones.security.blockedDomains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "scope": "application",
+          "description": "Dominios que nunca se conectarán (incluye sus subdominios)."
+        },
+        "conexiones.sync.ttlHours": {
+          "type": "number",
+          "default": 24,
+          "minimum": 1,
+          "maximum": 720,
+          "scope": "application",
+          "description": "Horas tras las cuales una conexión se considera desactualizada."
+        },
+        "conexiones.sync.maxPages": {
+          "type": "number",
+          "default": 150,
+          "minimum": 5,
+          "maximum": 1000,
+          "scope": "application",
+          "description": "Máximo de páginas que se leen de cada sitio."
+        },
+        "conexiones.sync.delayMs": {
+          "type": "number",
+          "default": 700,
+          "minimum": 200,
+          "maximum": 10000,
+          "scope": "application",
+          "description": "Pausa entre páginas del mismo sitio (milisegundos)."
+        },
+        "conexiones.storage.maxMb": {
+          "type": "number",
+          "default": 200,
+          "minimum": 20,
+          "maximum": 5000,
+          "scope": "application",
+          "description": "Espacio máximo de la biblioteca local (MB)."
+        },
+        "conexiones.search.embeddings": {
+          "type": "boolean",
+          "default": false,
+          "scope": "application",
+          "description": "Búsqueda por significado además de por palabras. Necesita un modelo de embeddings en Ollama (p. ej. nomic-embed-text)."
+        },
+        "conexiones.share.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "description": "Permitir que GhostCode, MagicTools y otras extensiones consulten lo que ya guardaste en tus conexiones (solo lectura, sin red ni claves)."
+        },
+        "conexiones.triconnect.enabled": {
+          "type": "boolean",
+          "default": false,
+          "scope": "application",
+          "description": "Triconnect: conecta Conexiones, GhostCode y MagicTools para que intercambien información (lo guardado en Conexiones hacia las otras dos, y su contexto hacia el asistente de Conexiones). Activa también «compartir»."
+        },
+        "conexiones.images.folder": {
+          "type": "string",
+          "default": "assets/images",
+          "scope": "application",
+          "description": "Carpeta del proyecto (relativa) donde se guardan las imágenes descargadas desde Recursos."
+        },
+        "conexiones.search.embeddingModel": {
+          "type": "string",
+          "default": "",
+          "scope": "application",
+          "description": "Modelo de embeddings de Ollama. Vacío = el primero que se encuentre."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node esbuild.mjs --tests && node --test out/test/*.test.js",
+    "package": "npm run typecheck && node esbuild.mjs --production && mkdir -p dist-vsix && vsce package --no-dependencies --allow-missing-repository -o dist-vsix/conexiones-$npm_package_version.vsix",
+    "vscode:prepublish": "node esbuild.mjs --production",
+    "install:editors": "node scripts/install-editors.mjs",
+    "package:install": "npm run package && node scripts/install-editors.mjs",
+    "release": "node scripts/release.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.25.0",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.132.1"
+  },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "En carpetas no confiables Conexiones no lee los archivos del proyecto (para detectar el tipo de proyecto ni la configuración MCP). Los ajustes de red y seguridad solo se leen de tu configuración de usuario, nunca de la carpeta.",
+      "restrictedConfigurations": []
+    }
+  }
+}
