@@ -383,7 +383,7 @@ test("Modo Kraken: el botón está bajo IA local/API, enciende el efecto y muest
   const btn = off.$(".kraken-btn") as HTMLElement;
   assert.ok(btn.textContent?.includes("Modo Kraken"));
   assert.equal(btn.querySelector("svg"), null, "el botón es solo el botón: sin icono");
-  assert.equal(off.$$("svg.kraken-art").length, 0, "apagado se ve el logo de Conexiones");
+  assert.equal(off.$$(".kraken-art").length, 0, "apagado se ve el logo de Conexiones");
   assert.ok(off.$(".logo-tile svg.logo"), "logo de Conexiones visible");
   assert.equal(btn.getAttribute("aria-pressed"), "false");
   assert.ok(off.$(".segs")!.compareDocumentPosition(btn) & 4, "va después de los botones IA local / API");
@@ -397,11 +397,12 @@ test("Modo Kraken: el botón está bajo IA local/API, enciende el efecto y muest
   assert.equal(on.w.document.body.classList.contains("kraken"), true, "contorno neón en todo el panel");
   assert.equal(on.$(".kraken-btn")?.getAttribute("aria-pressed"), "true");
   assert.equal(on.$(".k-hero"), null, "la pantalla no lleva un kraken grande");
-  assert.equal(on.$$("svg.kraken-art").length, 1, "un solo icono del kraken");
-  assert.ok(on.$(".logo-tile.kraken-tile svg.kraken-art .body") && on.$(".logo-tile svg.kraken-art .eyes path"), "el kraken ocupa el sitio del logo, con ojos");
+  assert.equal(on.$$(".kraken-art").length, 1, "un solo icono del kraken");
+  assert.ok(on.$(".logo-tile.kraken-tile .kraken-art .kk-body") && on.$$(".logo-tile .kraken-art .kk-eye").length === 2, "el kraken ocupa el sitio del logo, con ojos");
+  assert.ok((on.$(".kraken-art") as HTMLElement).style.getPropertyValue("--k-mask").includes("kraken-mask.webp"), "usa la imagen del kraken como máscara");
   assert.equal(on.$(".logo-tile svg.logo"), null, "el logo de Conexiones se oculta");
   assert.equal(on.$(".kraken-btn svg"), null, "el botón no lleva icono");
-  assert.ok(on.$$("svg.kraken-art").every((s) => s.querySelectorAll("script, foreignObject").length === 0));
+  assert.equal(on.$$(".kraken-art script, .kraken-art img").length, 0);
   const t = on.$(".kraken-screen")!.textContent!;
   for (const s of ["revisará tu proyecto por completo", "sin que tengas que hacerlo a mano", "Tú apruebas cada una, una por una", "qwen2.5-coder:14b", "40 archivos"]) assert.ok(t.includes(s), s);
   on.sent.length = 0;
@@ -482,7 +483,8 @@ test("Modo Kraken: los tentáculos decorativos aparecen al encender y desaparece
   const ui = boot();
   ui.push(state({ kraken: kraken() }));
   const box = ui.w.document.getElementById("kraken-tentacles");
-  assert.ok(box && box.querySelectorAll("svg.kt-arm").length >= 4, "tentáculos en los bordes");
+  assert.ok(box && box.querySelectorAll(".kt-arm img.kt-img").length >= 8, "tentáculos en los bordes");
+  assert.ok([...box.querySelectorAll("img")].every((i) => /tentaculo-\d+\.webp$/.test(i.getAttribute("src") ?? "") && i.getAttribute("alt") === ""), "recortes de tentaculos.webp, decorativos");
   assert.equal(box!.getAttribute("aria-hidden"), "true");
   assert.equal(box!.querySelectorAll("script, foreignObject").length, 0);
   ui.push(state({ kraken: kraken({ on: false }) }));

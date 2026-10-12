@@ -1034,16 +1034,17 @@ export class ConexionesPanel implements vscode.WebviewViewProvider {
     const nonce = [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, "0")).join("");
     const css = webview.asWebviewUri(vscode.Uri.joinPath(media, "panel.css"));
     const js = webview.asWebviewUri(vscode.Uri.joinPath(media, "panel.js"));
+    const mediaBase = webview.asWebviewUri(media).toString();
     return `<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src data:; script-src 'nonce-${nonce}';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src data: ${webview.cspSource}; script-src 'nonce-${nonce}';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="${css}">
 <title>Conexiones</title>
 </head>
-<body>
+<body data-media="${mediaBase}">
 <div id="app"><p class="muted">Cargando…</p></div>
 <script nonce="${nonce}" src="${js}"></script>
 </body>

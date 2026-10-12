@@ -2,7 +2,7 @@
   "name": "conexiones",
   "displayName": "Conexiones",
   "description": "Conecta webs de ayuda, librerías, registros de paquetes, iconos, fuentes, imágenes y servidores MCP; guarda lo leído en tu equipo y responde con IA local (Ollama) o API.",
-  "version": "0.5.13",
+  "version": "0.5.15",
   "publisher": "edgar",
   "author": {
     "name": "GMR027",
