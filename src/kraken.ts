@@ -196,7 +196,7 @@ export class Kraken {
       if (!base) return undefined;
       const best = KRAKEN_API_MODEL[c.apiProvider];
       let backend: Backend = base;
-      let model = c.apiModel || defaultApiModel(c.apiProvider) || "el modelo configurado";
+      let model = c.apiModel || defaultApiModel(c.apiProvider) || (c.apiProvider === "opencode" ? "predeterminado de OpenCode" : "el modelo configurado");
       if (c.apiProvider === "anthropic") {
         const key = await getApiKey(this.host.secrets, "anthropic");
         const mk = (m: string) => new AnthropicBackend(key, m, c.apiBaseUrl || undefined, "high");

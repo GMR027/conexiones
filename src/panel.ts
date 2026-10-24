@@ -11,7 +11,7 @@ import { attributionHtml, cssBackground, cleanFilters, IMAGE_PROVIDERS, imageFil
 import { findCommand, mcpPolicy, parseMcpConfig, probeHttp, statusStdio, type McpServer, type McpStatus } from "./connectors/mcp";
 import { clearSearchCache, REGISTRIES, savePackage, searchRegistry, type Pkg } from "./connectors/registry";
 import { enableApiMode } from "./commands";
-import { cfg, defaultApiModel, getApiKey, PROVIDER_LABELS, settings, update, urlPolicy } from "./config";
+import { cfg, defaultApiModel, getApiKey, PROVIDER_LABELS, settings, update, urlPolicy, usesOwnCredentials } from "./config";
 import { SearchIndex } from "./core/search";
 import { riskyCode } from "./core/safety";
 import { detectStack, describeStack, EMPTY_STACK, STACK_FILES, stackTags, tagBoost, type Stack } from "./core/project";
@@ -320,7 +320,7 @@ export class ConexionesPanel implements vscode.WebviewViewProvider {
 
   private async aiReady(): Promise<boolean> {
     const c = cfg();
-    if (c.mode === "api") return !!(await getApiKey(this.context.secrets, c.apiProvider)) || c.apiProvider === "openai-compatible";
+    if (c.mode === "api") return !!(await getApiKey(this.context.secrets, c.apiProvider)) || c.apiProvider === "openai-compatible" || usesOwnCredentials(c.apiProvider);
     const local = (this.local ??= await inspectLocal());
     return local.reachable && !!local.model;
   }
@@ -969,8 +969,8 @@ export class ConexionesPanel implements vscode.WebviewViewProvider {
     if (c.mode === "api") {
       const model = c.apiModel || defaultApiModel(c.apiProvider);
       const key = await getApiKey(this.context.secrets, c.apiProvider);
-      label = `${PROVIDER_LABELS[c.apiProvider]} · ${model || "sin modelo"}`;
-      ready = (!!key || c.apiProvider === "openai-compatible") && !!model;
+      label = `${PROVIDER_LABELS[c.apiProvider]} · ${model || (usesOwnCredentials(c.apiProvider) ? "predeterminado" : "sin modelo")}`;
+      ready = (!!key || c.apiProvider === "openai-compatible" || usesOwnCredentials(c.apiProvider)) && (!!model || usesOwnCredentials(c.apiProvider));
       if (!ready) problem = "Falta la API key o el modelo. Pulsa para configurarlos.";
     } else {
       ready = local.reachable && !!local.model;

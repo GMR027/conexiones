@@ -146,16 +146,17 @@
           "enum": [
             "anthropic",
             "codestral",
-            "openai-compatible"
+            "openai-compatible",
+            "opencode"
           ],
           "default": "anthropic",
-          "description": "Proveedor del modo API.",
+          "description": "Proveedor del modo API. «opencode» usa los modelos gratis o de tu suscripción de OpenCode (sesión con «opencode auth login»).",
           "scope": "application"
         },
         "conexiones.api.model": {
           "type": "string",
           "default": "",
-          "description": "Modelo del proveedor. Vacío = el predeterminado.",
+          "description": "Modelo del proveedor. Vacío = el predeterminado. Con OpenCode: proveedor/modelo (p. ej. opencode-go/claude-haiku-5-5).",
           "scope": "application"
         },
         "conexiones.api.baseUrl": {
